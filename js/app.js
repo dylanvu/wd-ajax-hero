@@ -59,13 +59,19 @@
   $('form').on('submit', (event) => {
     event.preventDefault();
 
-    if ($('#search').val().trim() === '') {
+    const searchQuery = $('#search').val();
+
+    if (searchQuery.trim() === '') {
       return;
     }
 
+    retrieveMovies(searchQuery);
+  });
+
+  const retrieveMovies = function(query) {
     const $xhr = $.ajax({
       method: 'GET',
-      url: 'http://www.omdbapi.com/?s=' + $('#search').val(),
+      url: `http://www.omdbapi.com/?s=${query}`,
       dataType: 'json'
     });
 
@@ -79,11 +85,33 @@
           id: result.imdbID,
           poster: result.Poster,
           title: result.Title,
-          Year: result.Year
+          year: result.Year
         };
 
-        movies.push(movie);
+        retrievePlot(movie);
       }
+    });
+
+    $xhr.fail((err) => {
+      console.log(err);
+    });
+  };
+
+  const retrievePlot = function(movie) {
+    const $xhr = $.ajax({
+      method: 'GET',
+      url: `http://www.omdbapi.com/?i=${movie.id}&plot=full`,
+      dataType: 'json'
+    });
+
+    $xhr.done((data) => {
+      if ($xhr.status !== 200) {
+        return;
+      }
+
+      movie.plot = data.Plot;
+
+      movies.push(movie);
 
       renderMovies();
     });
@@ -91,5 +119,5 @@
     $xhr.fail((err) => {
       console.log(err);
     });
-  });
+  }
 })();
