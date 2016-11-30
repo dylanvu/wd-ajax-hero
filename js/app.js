@@ -62,14 +62,13 @@
     const searchQuery = $('#search').val();
 
     if (searchQuery.trim() === '') {
-      Materialize.toast('Please enter a search term!');
       return;
     }
 
-    search(searchQuery);
+    getMovies(searchQuery);
   });
 
-  const search = function(query) {
+  const getMovies = function(query) {
     const $xhr = $.ajax({
       method: 'GET',
       url: `http://www.omdbapi.com/?s=${query}`,
@@ -78,10 +77,23 @@
 
     $xhr.done((data) => {
       if ($xhr.status !== 200) {
+        Materialize.toast('Please enter a search term!');
         return;
       }
 
-      getMovies(data.Search);
+      for (const result of data.Search) {
+        const movie = {
+          id: result.imdbID,
+          plot: getPlot(result.imdbID),
+          poster: result.Poster,
+          title: result.Title,
+          year: result.Year
+        };
+
+        movies.push(movie);
+      }
+
+      renderMovies();
     });
 
     $xhr.fail((err) => {
@@ -89,30 +101,19 @@
     });
   };
 
-  const getMovies = function(results) {
-    for (const result of results) {
-      const $xhr = $.ajax({
-        method: 'GET',
-        url: `http://www.omdbapi.com/?i=${result.imdbID}&plot=full`,
-        dataType: 'json'
-      });
+  const getPlot = function(id) {
+    const $xhr = $.ajax({
+      method: 'GET',
+      url: `http://www.omdbapi.com/?i=${id}&plot=full`,
+      dataType: 'json'
+    });
 
-      $xhr.done((data) => {
-        const movie = {
-          id: data.imdbID,
-          plot: data.Plot,
-          poster: data.Poster,
-          title: data.Title,
-          year: data.Year
-        };
+    $xhr.done((data) => {
+      return data.Plot;
+    });
 
-        movies.push(movie);
-        renderMovies();
-      });
-
-      $xhr.fail((err) => {
-        console.log(err);
-      });
-    }
+    $xhr.fail((err) => {
+      console.log(err);
+    });
   }
 })();
