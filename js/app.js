@@ -91,7 +91,6 @@
         getPlot(movie);
       }
 
-      renderMovies();
       movies.length = 0;
     });
 
@@ -110,6 +109,7 @@
     $xhr.done((data) => {
       movie.plot = data.Plot
       movies.push(movie);
+      renderMovies();
     });
 
     $xhr.fail((err) => {
