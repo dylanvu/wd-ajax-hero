@@ -82,15 +82,13 @@
       }
 
       for (const result of data.Search) {
-        const movie = {
-          id: result.imdbID,
-          plot: getPlot(result.imdbID),
-          poster: result.Poster,
-          title: result.Title,
-          year: result.Year
-        };
+        const movie = {};
+        movie.id = result.imdbID;
+        movie.poster = result.Poster
+        movie.title = result.Title
+        movie.year = result.Year
 
-        movies.push(movie);
+        getPlot(movie);
       }
 
       renderMovies();
@@ -102,15 +100,16 @@
     });
   };
 
-  const getPlot = function(id) {
+  const getPlot = function(movie) {
     const $xhr = $.ajax({
       method: 'GET',
-      url: `http://www.omdbapi.com/?i=${id}&plot=full`,
+      url: `http://www.omdbapi.com/?i=${movie.id}&plot=full`,
       dataType: 'json'
     });
 
     $xhr.done((data) => {
-      return data.Plot;
+      movie.plot = data.Plot
+      movies.push(movie);
     });
 
     $xhr.fail((err) => {
