@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  let movies = [];
+  const movies = [];
 
   const renderMovies = function() {
     $('#listings').empty();
@@ -94,7 +94,7 @@
       }
 
       renderMovies();
-      movies = [];
+      movies.length = 0;
     });
 
     $xhr.fail((err) => {
